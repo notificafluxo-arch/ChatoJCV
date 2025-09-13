@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>ChatoJCV ☁️</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Manifest para PWA -->
+  <link rel="manifest" href="https://script.google.com/macros/s/AKfycbyqhkbjIM8lGPP3x25s8eoPjKjL4ycHeJxPwX-0UfqxNuIUJISc3V-FrmERSlybPNaO/exec?manifest=true">
+  <meta name="theme-color" content="#0b6fb6">
+
+  <style>
+    body { font-family: "Segoe UI", Arial; background:#f3f6fa; margin:0; color:#333; }
+    header { background:#0b6fb6; color:#fff; padding:16px; font-size:1.4em; font-weight:bold; text-align:center; position:sticky; top:0; }
+    main { max-width:600px; margin:0 auto; padding:20px; }
+    .search-box { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-bottom:20px; }
+    input[type=text] { flex:1; min-width:150px; padding:10px; border-radius:8px; border:1px solid #ccc; }
+    button { padding:10px 16px; border-radius:8px; border:none; cursor:pointer; font-size:1em; transition:background 0.2s; }
+    #btnPesquisar { background:#0b6fb6; color:#fff; } 
+    #btnPesquisar:hover { background:#095a91; }
+    #btnSugerir { background:#fff; color:#0b6fb6; border:2px solid #0b6fb6; }
+    #btnSugerir.highlight { background:#ffcc00; color:#000; border-color:#ffcc00; font-weight:bold; }
+    .card { background:#fff; border-radius:10px; padding:14px; margin:10px 0; box-shadow:0 2px 8px rgba(0,0,0,0.1); cursor:pointer; }
+    .card h3 { margin:0 0 5px; color:#0b6fb6; font-size:1em; }
+    .resposta { background:#fff; border-radius:10px; padding:16px; margin-top:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    .resposta strong { color:#0b6fb6; }
+    .actions { margin-top:12px; }
+    .actions button { margin-right:8px; }
+  </style>
+</head>
+<body>
+  <header>ChatoJCV ☁️</header>
+  <main>
+    <div class="search-box">
+      <input type="text" id="pergunta" placeholder="Digite sua dúvida..." />
+      <button id="btnPesquisar" onclick="pesquisar()">Pesquisar</button>
+      <button id="btnSugerir" onclick="sugerir()">Sugerir</button>
+    </div>
+    <div id="resposta"></div>
+  </main>
+
+  <script>
+    const respostaDiv = document.getElementById('resposta');
+    const perguntaInput = document.getElementById('pergunta');
+    const btnSugerir = document.getElementById('btnSugerir');
+
+    function setLoading(on) { respostaDiv.innerHTML = on ? '<em>Buscando…</em>' : ''; }
+
+    function pesquisar() {
+      const q = perguntaInput.value.trim();
+      if (!q) { respostaDiv.innerHTML='<em>Digite algo para pesquisar.</em>'; return; }
+      setLoading(true);
+      google.script.run.withSuccessHandler(renderResult).buscarRespostasInteligente(q);
+    }
+
+    function renderResult(res) {
+      respostaDiv.innerHTML = '';
+      btnSugerir.classList.remove('highlight');
+
+      if (!res || res.length===0) {
+        respostaDiv.innerHTML='<p>Não encontrei nada.</p>';
+        btnSugerir.classList.add('highlight');
+        return;
+      }
+
+      res.forEach(item => {
+        const card = document.createElement('div');
+        card.className='card';
+        card.innerHTML=`<h3>❓ ${escapeHtml(item.pergunta)}</h3><p><em>Clique para ver resposta</em></p>`;
+        card.onclick=()=>mostrarResposta(item,res);
+        respostaDiv.appendChild(card);
+      });
+    }
+
+    function mostrarResposta(item, all){
+      respostaDiv.innerHTML=`<div class="resposta">
+        <p><strong>Pergunta:</strong> ${escapeHtml(item.pergunta)}</p>
+        <p><strong>Resposta:</strong> ${escapeHtml(item.resposta)}</p>
+        <div class="actions">
+          <button onclick="renderResult(window.resultadosGlobais)">⬅ Voltar</button>
+        </div>
+      </div>`;
+      window.resultadosGlobais = all;
+    }
+
+    function sugerir() {
+      const q = perguntaInput.value.trim();
+      if (!q) { respostaDiv.innerHTML='<em>Digite algo antes de sugerir!</em>'; return; }
+      google.script.run.withSuccessHandler(res=>{respostaDiv.innerHTML='<p>'+res+'</p>';}).registrarSugestao(q);
+    }
+
+    perguntaInput.addEventListener('keydown',e=>{if(e.key==='Enter') pesquisar();});
+
+    function escapeHtml(text){if(!text)return''; return text.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+
+    // Service Worker para PWA (opcional)
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.register('https://seusite.com/sw.js')
+        .then(()=>console.log('Service Worker registrado'))
+        .catch(err=>console.log('Erro SW:',err));
+    }
+  </script>
+</body>
+</html>
+
+
+
