@@ -1,7 +1,7 @@
 {
   "name": "ChatoJCV",
   "short_name": "ChatoJCV",
-  "start_url": "https://script.google.com/macros/s/AKfycbwxR0OvIqCVnIzHfYSTU4tPMPiql5CH9T4xs7dvjGV8dCBMtPvPp8Mj1N75PhgJqA9k/exec./index.html",
+  "start_url": "https://script.google.com/macros/s/AKfycbwxR0OvIqCVnIzHfYSTU4tPMPiql5CH9T4xs7dvjGV8dCBMtPvPp8Mj1N75PhgJqA9k/exec",
   "display": "standalone",
   "background_color": "#f3f6fa",
   "theme_color": "#0b6fb6",
@@ -10,5 +10,6 @@
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
+
 
 
